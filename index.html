@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WCM Tool V51 (相對座標對位與即時預覽升級版)</title>
+    <title>WCM Tool V52 (相對座標對位與即時預覽升級版)</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -209,7 +209,7 @@
 <div id="loading-mask" class="loading-mask"><div class="spinner"></div><div id="loading-text" style="margin-top:10px; font-weight:bold;"></div></div>
 
 <div class="global-header">
-    <div class="header-title">WCM Tool V51</div>
+    <div class="header-title">WCM Tool V52</div>
     <div class="file-group"><span>1.工位(BLK Supply Tray File)</span><input type="file" id="file-map" accept=".xlsx,.xls,.csv" /></div>
     <div class="file-group"><span>2.WCM(OK/NG File)</span><input type="file" id="file-wcm" accept=".csv,.dat,.txt" disabled /></div>
     <div class="file-group" id="fg-elec">
@@ -394,11 +394,18 @@
             </div>
 
             <div class="mapping-row">
-                <span class="label">Wafer ID (可選)</span>
-                <select id="sel-map-wafer" onchange="updateLivePreview()"></select>
-                <span class="mapping-hint">用於多 Wafer 自動匹配</span>
+                <span class="label">Wafer ID 欄位</span>
+                <select id="sel-map-wafer" onchange="updateTargetWaferList()"></select>
+                <span class="mapping-hint">指定檔案內的晶圓標題</span>
             </div>
-            <div class="mapping-row">
+            
+            <div class="mapping-row" id="row-target-wafer" style="display:none; background:#e6f7ff; padding:5px 10px; border-radius:4px; margin-left:-5px; margin-right:-5px;">
+                <span class="label" style="color:#0056b3;">▶ 選擇目標晶圓 <span style="color:red">*</span></span>
+                <select id="sel-target-wafer" onchange="updateLivePreview()" style="border:1px solid #005a9e; font-weight:bold;"></select>
+                <span class="mapping-hint" id="wafer-match-hint"></span>
+            </div>
+
+            <div class="mapping-row" style="margin-top:10px;">
                 <span class="label">X 座標/欄位 (X) <span style="color:red">*</span></span>
                 <select id="sel-map-x" onchange="updateLivePreview()"></select>
             </div>
@@ -412,14 +419,14 @@
                 <div style="display:flex; gap:15px; font-size:13px;">
                     <div>X 軸順序：
                         <select id="sel-sort-x" onchange="updateLivePreview()">
-                            <option value="asc" selected>遞增 (小➔大, 由左至右)</option>
-                            <option value="desc">遞減 (大➔小, 由右至左)</option>
+                            <option value="asc">遞增 (小➔大, 由左至右)</option>
+                            <option value="desc" selected>遞減 (大➔小, 由右至左)</option>
                         </select>
                     </div>
                     <div>Y 軸順序：
                         <select id="sel-sort-y" onchange="updateLivePreview()">
-                            <option value="desc" selected>遞減 (大➔小, 由上至下)</option>
-                            <option value="asc">遞增 (小➔大, 由下至上)</option>
+                            <option value="desc">遞減 (大➔小, 由上至下)</option>
+                            <option value="asc" selected>遞增 (小➔大, 由下至上)</option>
                         </select>
                     </div>
                 </div>
@@ -440,7 +447,12 @@
             </div>
 
             <div style="margin-top:15px; border-top:1px dashed #ccc; padding-top:10px; text-align:center;">
-                <strong style="color:#005a9e;">📍 資料分佈預覽 (請比對是否與工位圖相同)</strong>
+                <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:5px;">
+                    <strong style="color:#005a9e;">📍 資料分佈預覽 (請比對是否與工位圖相同)</strong>
+                    <select id="sel-preview-item" onchange="updateLivePreview()" style="padding:3px; font-size:12px; border-radius:3px; max-width:200px;">
+                        <option value="">-- 純座標預覽 --</option>
+                    </select>
+                </div>
                 <div id="preview-msg" style="font-size:12px; color:#dc3545; margin:5px 0; height:18px;"></div>
                 <div style="background:#eee; padding:10px; border-radius:5px; display:inline-block;">
                     <canvas id="live-preview-canvas" width="400" height="250" style="background:#fff; border:1px solid #ccc; max-width:100%;"></canvas>
