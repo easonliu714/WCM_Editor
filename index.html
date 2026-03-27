@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WCM Tool V52 (相對座標對位與即時預覽升級版)</title>
+    <title>WCM Tool V53 (剝斷檔整合與抽樣模式升級版)</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -48,7 +48,7 @@
         /* 主工作區 */
         .main-workspace { display: flex; flex: 1; min-height: 0; width: 100vw; position: relative; z-index: 1; }
         
-        .panel-left { flex: 0 0 550px; display: flex; flex-direction: column; background: #333; position: relative; min-width: 200px; max-width: 80vw; }
+        .panel-left { flex: 0 0 400px; display: flex; flex-direction: column; background: #333; position: relative; min-width: 200px; max-width: 80vw; }
         
         .splitter { width: 5px; background: #ccc; cursor: col-resize; border-left: 1px solid #bbb; border-right: 1px solid #bbb; flex-shrink: 0; z-index: 100; }
         .splitter:hover { background: #999; }
@@ -209,7 +209,9 @@
 <div id="loading-mask" class="loading-mask"><div class="spinner"></div><div id="loading-text" style="margin-top:10px; font-weight:bold;"></div></div>
 
 <div class="global-header">
-    <div class="header-title">WCM Tool V52</div>
+    <button class="btn btn-danger" style="margin-right: 10px; font-size: 13px;" onclick="if(confirm('⚠️ 警告：這將會清除所有暫存的資料表與設定檔，並將系統恢復至初始狀態。\\n\\n確定要重置系統嗎？')) { localStorage.clear(); location.reload(); }">⚠️ 重置系統</button>
+    
+    <div class="header-title">WCM Tool V53</div>
     <div class="file-group"><span>1.工位(BLK Supply Tray File)</span><input type="file" id="file-map" accept=".xlsx,.xls,.csv" /></div>
     <div class="file-group"><span>2.WCM(OK/NG File)</span><input type="file" id="file-wcm" accept=".csv,.dat,.txt" disabled /></div>
     <div class="file-group" id="fg-elec">
@@ -268,14 +270,19 @@
             <span style="margin-left:10px; font-size:0.9em;">顯示特性:</span>
             <select id="item-select" disabled style="width:180px;"><option value="">(無)</option></select>
             <button id="btn-export-maps" class="btn-sm" disabled style="background:#6f42c1; margin-left:5px;">匯出特性MAP圖</button>
+
+            <button id="btn-random-pick" class="btn-compare" disabled style="margin-left:10px; border-color:#28a745; color:#28a745; font-weight:bold; background:#e8f5e9;">🎲 規格內隨機抽樣</button>
+            
+            <button onclick="document.getElementById('file-peel').click()" id="btn-import-peel" class="btn-raw" disabled style="margin-left:10px;">✂️ 匯入剝斷檔</button>
+            <input type="file" id="file-peel" accept=".csv,.dat,.txt" style="display:none" onchange="importPeelFile(this)">
             
             <div style="flex:1"></div>
             <button id="btn-reset" class="btn-red" disabled style="margin-right:15px">清除標記</button>
             
             <select id="sel-mark-action" disabled style="margin-right:5px; padding:3px; font-size:12px; border:1px solid #ccc; border-radius:3px;">
-                <option value="replace" selected>取代為 ➔</option>
-                <option value="add">加入 ➔</option>
+                <option value="add" selected>加入 ➔</option>
                 <option value="remove">移除 ➔</option>
+                <option value="replace">取代為 ➔</option>
             </select>
             <select id="sel-mark-type" disabled style="margin-right:5px; padding:3px; font-size:12px; border:1px solid #ccc; border-radius:3px;">
                 <option value="spec_ok" selected>規格 OK</option>
@@ -495,6 +502,13 @@
             </label>
         </div>
 
+        <div style="background:#e6f7ff; padding:10px 15px; border-radius:5px; border:1px solid #b8daff; margin-top:10px;">
+            <label style="display:block; cursor:pointer; font-weight:bold; color:#0056b3;">
+                <input type="checkbox" id="chk-only-marked-ok"> 
+                🚨 抽樣模式：未標記的晶粒一律強制判定為 NG (僅匯出有標記的晶粒為 OK)
+            </label>
+        </div>
+        
         <div style="margin-top: 15px;">
             <strong>邏輯真值表 (針對「被手動標記」的晶粒)：</strong>
             <table class="logic-table">
